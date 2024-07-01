@@ -10,13 +10,13 @@ public class Factura {
     @Column(name = "idfactura", nullable = false)
     private Integer id;
 
-    @Column(name = "fechaEnvio", nullable = false, length = 50)
+    @Column(name = "fechaenvio", nullable = false, length = 50)
     private String fechaEnvio;
 
     @Column(name = "tarjeta", nullable = false, length = 50)
     private String tarjeta;
 
-    @Column(name = "codigoVerificacion", nullable = false, length = 5)
+    @Column(name = "codigoverificacion", nullable = false, length = 5)
     private String codigoVerificacion;
 
     @Column(name = "direccion", nullable = false, length = 500)
