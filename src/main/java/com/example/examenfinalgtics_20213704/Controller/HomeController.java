@@ -27,7 +27,7 @@ public class HomeController {
     @CrossOrigin
     @GetMapping(value="/api/orders/lista" , produces = MediaType.APPLICATION_JSON_VALUE + "; charset=utf-8")
     @ResponseBody
-    public Object listarApi(){
+    public Object listarApigit(){
         LinkedHashMap<String , Object> response= new LinkedHashMap<>();
         response.put("result", "success");
         //Ponemos la informacion sin los ids
