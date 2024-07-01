@@ -1,8 +1,9 @@
 package com.example.examenfinalgtics_20213704.Controller;
 
 import com.example.examenfinalgtics_20213704.Entities.Juego;
-import com.example.examenfinalgtics_20213704.Repositories.JuegoRepository;
+import com.example.examenfinalgtics_20213704.Repositories.*;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,22 @@ import java.util.LinkedHashSet;
 public class HomeController {
 
     final JuegoRepository juegoRepository;
-    public HomeController(JuegoRepository juegoRepository){
+    final DistribuidoraRepository distribuidoraRepository;
+    final EditoraRepository editoraRepository;
+
+    final GeneroRepository generoRepository;
+    final PlataformaRepository plataformaRepository;
+
+    public HomeController(JuegoRepository juegoRepository,
+    DistribuidoraRepository distribuidoraRepository,
+    EditoraRepository editoraRepository,
+                          GeneroRepository generoRepository,
+                          PlataformaRepository plataformaRepository
+    ){
+        this.plataformaRepository= plataformaRepository;
+        this.generoRepository = generoRepository;
+        this.editoraRepository=  editoraRepository;
+        this.distribuidoraRepository = distribuidoraRepository;
         this.juegoRepository = juegoRepository;
     }
 
@@ -47,7 +63,7 @@ public class HomeController {
             listaDepurada.add(link);
         }
         response.put("data" ,  listaDepurada);
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     //Crear juegos
@@ -58,22 +74,63 @@ public class HomeController {
     public Object crearJuego( @RequestParam(value="nombre") String nombre, @RequestParam(value="descripcion")  String descripcion, @RequestParam(value="precio")  String  precio,  @RequestParam( value="image") String image, @RequestParam(value = "idGenero") String idGenero
                               ,@RequestParam(value="idPlataforma") String idPlataforma , @RequestParam(value="idEditora") String idEditora , @RequestParam(value="idDistribuidora") String idDistribuidora
     ){
-
-
-
-
-
-
-
-        return new Object();
+        try{
+            Juego j = new Juego();
+            j.setNombre(nombre);
+            j.setDescripcion(descripcion);
+            j.setPrecio(Double.parseDouble(precio));
+            j.setImage(image);
+            j.setIdgenero(generoRepository.findById(Integer.parseInt(idGenero)).get());
+            j.setIdplataforma(plataformaRepository.findById(Integer.parseInt(idPlataforma)).get());
+            j.setIdeditora(editoraRepository.findById(Integer.parseInt(idEditora)).get());
+            j.setIddistribuidora(distribuidoraRepository.findById(Integer.parseInt(idDistribuidora)).get());
+            Juego nuevoJuego = juegoRepository.save(j);
+            LinkedHashMap<String , Object> response= new LinkedHashMap<>();
+            response.put("result", "success");
+            LinkedHashMap<String , Object> data  = new LinkedHashMap<>();
+            data.put("new_id" ,  nuevoJuego.getId());
+            response.put("data" ,data );
+            return ResponseEntity.ok(response);
+        }catch(Exception error){
+            LinkedHashMap<String , Object> response= new LinkedHashMap<>();
+            response.put("result", "error");
+            response.put("msg",  "parametros incorrectos");
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
 
     @CrossOrigin
     @PutMapping(value="/api/orders/update" , produces = MediaType.APPLICATION_JSON_VALUE + "; charset=utf-8")
     @ResponseBody
-    public Object updateJuego(){
-        return new Object();
+    public Object updateJuego(
+            @RequestParam(value="nombre", required = false) String nombre, @RequestParam(value="descripcion", required = false)  String descripcion, @RequestParam(value="precio", required = false)  String  precio,  @RequestParam( value="image", required = false) String image, @RequestParam(value = "idGenero", required = false) String idGenero
+            ,@RequestParam(value="idPlataforma", required = false) String idPlataforma , @RequestParam(value="idEditora", required = false) String idEditora , @RequestParam(value="idDistribuidora", required = false) String idDistribuidora , @RequestParam(value= "idJuego") String idJuego
+    ){
+        try{
+            Juego j = new Juego();
+            j.setId(Integer.parseInt(idJuego));
+            j.setNombre(nombre);
+            j.setDescripcion(descripcion);
+            j.setPrecio(Double.parseDouble(precio));
+            j.setImage(image);
+            j.setIdgenero(generoRepository.findById(Integer.parseInt(idGenero)).get());
+            j.setIdplataforma(plataformaRepository.findById(Integer.parseInt(idPlataforma)).get());
+            j.setIdeditora(editoraRepository.findById(Integer.parseInt(idEditora)).get());
+            j.setIddistribuidora(distribuidoraRepository.findById(Integer.parseInt(idDistribuidora)).get());
+            Juego nuevoJuego = juegoRepository.save(j);
+            LinkedHashMap<String , Object> response= new LinkedHashMap<>();
+            response.put("result", "success");
+            LinkedHashMap<String , Object> data  = new LinkedHashMap<>();
+            data.put("updates_id" ,  nuevoJuego.getId());
+            response.put("data" ,data );
+            return ResponseEntity.ok(response);
+        }catch(Exception error){
+            LinkedHashMap<String , Object> response= new LinkedHashMap<>();
+            response.put("result", "error");
+            response.put("msg",  "parametros incorrectos");
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
 
