@@ -2,12 +2,15 @@ package com.example.examenfinalgtics_20213704.Controller;
 
 import com.example.examenfinalgtics_20213704.Entities.Juego;
 import com.example.examenfinalgtics_20213704.Repositories.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
@@ -32,6 +35,16 @@ public class HomeController {
         this.editoraRepository=  editoraRepository;
         this.distribuidoraRepository = distribuidoraRepository;
         this.juegoRepository = juegoRepository;
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<HashMap<String, String>> gestionException(HttpServletRequest request) {
+        HashMap<String, String> responseMap = new HashMap<>();
+        if (request.getMethod().equals("POST") || request.getMethod().equals("PUT")) {
+            responseMap.put("estado", "error");
+            responseMap.put("msg", "Debe enviar un juego");
+        }
+        return ResponseEntity.badRequest().body(responseMap);
     }
 
 
@@ -68,11 +81,17 @@ public class HomeController {
 
     //Crear juegos
 
-    @CrossOrigin
-    @PostMapping(value="/api/orders/crear" , produces = MediaType.APPLICATION_JSON_VALUE + "; charset=utf-8")
+
+    @PostMapping(value="/api/orders/crear")
     @ResponseBody
-    public Object crearJuego( @RequestParam(value="nombre") String nombre, @RequestParam(value="descripcion")  String descripcion, @RequestParam(value="precio")  String  precio,  @RequestParam( value="image") String image, @RequestParam(value = "idGenero") String idGenero
-                              ,@RequestParam(value="idPlataforma") String idPlataforma , @RequestParam(value="idEditora") String idEditora , @RequestParam(value="idDistribuidora") String idDistribuidora
+    public Object crearJuego( @RequestParam(value="nombre") String nombre,
+                              @RequestParam(value="descripcion")  String descripcion,
+                              @RequestParam(value="precio")  String  precio,
+                              @RequestParam( value="image") String image,
+                              @RequestParam(value = "idGenero") String idGenero
+                              ,@RequestParam(value="idPlataforma") String idPlataforma ,
+                              @RequestParam(value="idEditora") String idEditora ,
+                              @RequestParam(value="idDistribuidora") String idDistribuidora
     ){
         try{
             Juego j = new Juego();
@@ -98,6 +117,8 @@ public class HomeController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    //Update juegos
 
 
     @CrossOrigin
@@ -126,6 +147,7 @@ public class HomeController {
             response.put("data" ,data );
             return ResponseEntity.ok(response);
         }catch(Exception error){
+            error.printStackTrace();
             LinkedHashMap<String , Object> response= new LinkedHashMap<>();
             response.put("result", "error");
             response.put("msg",  "parametros incorrectos");
